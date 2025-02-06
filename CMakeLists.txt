@@ -44,9 +44,14 @@ pico_set_program_version(using-display "0.1")
 pico_enable_stdio_uart(using-display 0)
 pico_enable_stdio_usb(using-display 0)
 
+pico_generate_pio_header(using-display ${CMAKE_CURRENT_LIST_DIR}/using-display.pio)
+
+target_sources(using-display PRIVATE using-display.c)
+
 # Add the standard library to the build
-target_link_libraries(using-display
-        pico_stdlib)
+target_link_libraries(using-display PRIVATE
+        pico_stdlib
+        hardware_pio)
 
 # Add the standard include files to the build
 target_include_directories(using-display PRIVATE
