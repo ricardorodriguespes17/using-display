@@ -1,27 +1,16 @@
 #include <stdio.h>
 
-#include "hardware/clocks.h"
 #include "hardware/pio.h"
+#include "matrix.h"
 #include "pico/stdlib.h"
-
-// arquivo .pio
-#include "using-display.pio.h"
 
 // define o numero do pino para cada led
 #define BLUE_LED_PIN 11
 #define GREEN_LED_PIN 12
-// pino de saída
+// pino dos botoes
 #define BUTTON_PIN_A 5
 #define BUTTON_PIN_B 6
-#define OUT_PIN 7
 
-// configurações da PIO
-PIO pio = pio0;
-bool ok;
-uint16_t i;
-double r = 0.0, b = 0.0, g = 0.0;
-uint offset;
-uint sm;
 // configuracoes das interrupcoes
 static volatile uint32_t last_time = 0;
 // estados dos leds
@@ -34,11 +23,10 @@ void verify_leds_status();
 void config_buttons();
 
 int main() {
-  // coloca a frequência de clock para 128 MHz, facilitando a divisão pelo clock
-  ok = set_sys_clock_khz(128000, false);
   stdio_init_all();
   define_all_components();
   config_buttons();
+  config_pio_matrix();
 
   while (true) {
     verify_leds_status();
@@ -69,13 +57,6 @@ void define_all_components() {
 void verify_leds_status() {
   gpio_put(BLUE_LED_PIN, blue_led_on);
   gpio_put(GREEN_LED_PIN, green_led_on);
-}
-
-void config_pio() {
-  // configurações da PIO
-  uint offset = pio_add_program(pio, &using_display_program);
-  uint sm = pio_claim_unused_sm(pio, true);
-  using_display_program_init(pio, sm, offset, OUT_PIN);
 }
 
 // rotina da interrupção
