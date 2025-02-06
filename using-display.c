@@ -22,6 +22,11 @@ uint16_t i;
 double r = 0.0, b = 0.0, g = 0.0;
 uint offset;
 uint sm;
+// configuracoes das interrupcoes
+static volatile uint32_t last_time = 0;
+// estados dos leds
+static volatile bool blue_led_on = false;
+static volatile bool green_led_on = false;
 
 void define_all_components();
 
@@ -59,4 +64,26 @@ void config_pio() {
   uint offset = pio_add_program(pio, &using_display_program);
   uint sm = pio_claim_unused_sm(pio, true);
   using_display_program_init(pio, sm, offset, OUT_PIN);
+}
+
+// rotina da interrupção
+static void gpio_irq_handler(uint gpio, uint32_t events) {
+  uint32_t current_time = to_us_since_boot(get_absolute_time());
+
+  if (current_time - last_time > 200000) {
+    last_time = current_time;
+    if (gpio == BUTTON_PIN_A) {
+      green_led_on = !green_led_on;
+    } else if (gpio == BUTTON_PIN_B) {
+      blue_led_on = !blue_led_on;
+    }
+  }
+}
+
+void config_buttons() {
+  // interrupção da gpio habilitada
+  gpio_set_irq_enabled_with_callback(BUTTON_PIN_A, GPIO_IRQ_EDGE_FALL, 1,
+                                     &gpio_irq_handler);
+  gpio_set_irq_enabled_with_callback(BUTTON_PIN_B, GPIO_IRQ_EDGE_FALL, 1,
+                                     &gpio_irq_handler);
 }
