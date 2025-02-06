@@ -9,7 +9,7 @@
 
 // define o numero do pino para cada led
 #define BLUE_LED_PIN 11
-#define GREEN_LED_PIN 13
+#define GREEN_LED_PIN 12
 // pino de saída
 #define BUTTON_PIN_A 5
 #define BUTTON_PIN_B 6
@@ -28,15 +28,22 @@ static volatile uint32_t last_time = 0;
 static volatile bool blue_led_on = false;
 static volatile bool green_led_on = false;
 
+// define os metodos a serem utilizados abaixo
 void define_all_components();
+void verify_leds_status();
+void config_buttons();
 
 int main() {
   // coloca a frequência de clock para 128 MHz, facilitando a divisão pelo clock
   ok = set_sys_clock_khz(128000, false);
   stdio_init_all();
   define_all_components();
+  config_buttons();
 
-  while (true);
+  while (true) {
+    verify_leds_status();
+    sleep_ms(100);
+  }
 }
 
 // define os pinos e os tipos dos componentes utilizados
@@ -44,7 +51,7 @@ void define_all_components() {
   // inicializar o led azul - GPIO11
   gpio_init(BLUE_LED_PIN);
   gpio_set_dir(BLUE_LED_PIN, GPIO_OUT);
-  // inicializar o led verde - GPIO13
+  // inicializar o led verde - GPIO12
   gpio_init(GREEN_LED_PIN);
   gpio_set_dir(GREEN_LED_PIN, GPIO_OUT);
 
@@ -57,6 +64,11 @@ void define_all_components() {
   gpio_init(BUTTON_PIN_B);
   gpio_set_dir(BUTTON_PIN_B, GPIO_IN);
   gpio_pull_up(BUTTON_PIN_B);
+}
+
+void verify_leds_status() {
+  gpio_put(BLUE_LED_PIN, blue_led_on);
+  gpio_put(GREEN_LED_PIN, green_led_on);
 }
 
 void config_pio() {
@@ -74,8 +86,10 @@ static void gpio_irq_handler(uint gpio, uint32_t events) {
     last_time = current_time;
     if (gpio == BUTTON_PIN_A) {
       green_led_on = !green_led_on;
+      blue_led_on = false;
     } else if (gpio == BUTTON_PIN_B) {
       blue_led_on = !blue_led_on;
+      green_led_on = false;
     }
   }
 }
