@@ -35,7 +35,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(using-display using-display.c matrix.c)
+add_executable(using-display using-display.c matrix.c serial.c inc/ssd1306.c)
 
 pico_set_program_name(using-display "using-display")
 pico_set_program_version(using-display "0.1")
@@ -51,7 +51,8 @@ target_sources(using-display PRIVATE using-display.c)
 # Add the standard library to the build
 target_link_libraries(using-display PRIVATE
         pico_stdlib
-        hardware_pio)
+        hardware_pio
+        hardware_i2c)
 
 # Add the standard include files to the build
 target_include_directories(using-display PRIVATE
@@ -59,9 +60,7 @@ target_include_directories(using-display PRIVATE
 )
 
 # Add any user requested libraries
-target_link_libraries(using-display 
-        
-        )
+target_link_libraries(using-display)
 
 pico_add_extra_outputs(using-display)
 
