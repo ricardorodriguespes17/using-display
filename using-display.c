@@ -1,8 +1,10 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "hardware/pio.h"
 #include "matrix.h"
 #include "pico/stdlib.h"
+#include "serial.h"
 
 // define o numero do pino para cada led
 #define BLUE_LED_PIN 11
@@ -21,12 +23,14 @@ static volatile bool green_led_on = false;
 void define_all_components();
 void verify_leds_status();
 void config_buttons();
+void print_led_status(char *led_name, bool status);
 
 int main() {
   stdio_init_all();
   define_all_components();
   config_buttons();
   config_pio_matrix();
+  config_serial();
 
   while (true) {
     verify_leds_status();
@@ -67,12 +71,26 @@ static void gpio_irq_handler(uint gpio, uint32_t events) {
     last_time = current_time;
     if (gpio == BUTTON_PIN_A) {
       green_led_on = !green_led_on;
+      print_led_status("verde", green_led_on);
       blue_led_on = false;
     } else if (gpio == BUTTON_PIN_B) {
       blue_led_on = !blue_led_on;
+      print_led_status("azul", blue_led_on);
       green_led_on = false;
     }
   }
+}
+
+void print_led_status(char *led_name, bool status) {
+  char *led_name_aux = strcat("LED", led_name);
+
+  if (status) {
+    led_name_aux = strcat(led_name_aux, "ON");
+  } else {
+    led_name_aux = strcat(led_name_aux, "OFF");
+  }
+
+  print_serial(led_name_aux);
 }
 
 void config_buttons() {

@@ -21,11 +21,15 @@ void config_serial() {
   ssd1306_init(&ssd, WIDTH, HEIGHT, false, 0x3C, I2C_PORT);
   ssd1306_config(&ssd);
   ssd1306_send_data(&ssd);
+  // Limpa o display. O display inicia com todos os pixels apagados.
   ssd1306_fill(&ssd, false);
-  ssd1306_rect(&ssd, 3, 3, 122, 58, false, true);
+  ssd1306_send_data(&ssd);
 }
 
 void print_serial(char *text) {
+  // limpa o display
+  ssd1306_fill(&ssd, false);
+  ssd1306_rect(&ssd, 3, 3, 122, 58, false, true);
   ssd1306_draw_string(&ssd, text, 8, 10);
   ssd1306_send_data(&ssd);
 }

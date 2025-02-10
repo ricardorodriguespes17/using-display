@@ -42,7 +42,7 @@ pico_set_program_version(using-display "0.1")
 
 # Modify the below lines to enable/disable output over UART/USB
 pico_enable_stdio_uart(using-display 0)
-pico_enable_stdio_usb(using-display 0)
+pico_enable_stdio_usb(using-display 1)
 
 pico_generate_pio_header(using-display ${CMAKE_CURRENT_LIST_DIR}/using-display.pio)
 
